@@ -1,124 +1,28 @@
-const chat=document.getElementById("chat")
-const input=document.getElementById("input")
-
-function addMessage(text,type){
-
-const div=document.createElement("div")
-
-div.className="message "+type
-
-div.innerText=text
-
-chat.appendChild(div)
-
-chat.scrollTop=chat.scrollHeight
-
-}
-
-function newChat(){
-
-chat.innerHTML=""
-
-}
-
 async function sendMessage(){
 
-const text=input.value
+let input = document.getElementById("userInput").value
+let chatbox = document.getElementById("chatbox")
 
-if(!text)return
+chatbox.innerHTML += `<p class="user">Jij: ${input}</p>`
+chatbox.innerHTML += `<p class="ai">AI denkt...</p>`
 
-addMessage(text,"user")
-
-input.value=""
-
-const loading=document.createElement("div")
-
-loading.className="message bot"
-
-loading.innerText="AI denkt..."
-
-chat.appendChild(loading)
-
-const res=await fetch("/api/chat",{
-
+const response = await fetch("/api/chat",{
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
-body:JSON.stringify({
-message:text
+body: JSON.stringify({
+messages:[
+{role:"system",content:"Je helpt mensen Portugees leren op een leuke manier"},
+{role:"user",content:input}
+]
+})
 })
 
-})
+const data = await response.json()
 
-const data=await res.json()
+let ai = data.choices[0].message.content
 
-loading.remove()
-
-typeWriter(data.reply)
-
-speak(data.reply)
+chatbox.innerHTML += `<p class="ai">${ai}</p>`
 
 }
-
-function typeWriter(text){
-
-let i=0
-
-const div=document.createElement("div")
-
-div.className="message bot"
-
-chat.appendChild(div)
-
-const interval=setInterval(()=>{
-
-div.innerText=text.substring(0,i)
-
-i++
-
-if(i>text.length){
-clearInterval(interval)
-}
-
-chat.scrollTop=chat.scrollHeight
-
-},15)
-
-}
-
-function speak(text){
-
-const speech=new SpeechSynthesisUtterance(text)
-
-speech.lang="pt-PT"
-
-speechSynthesis.speak(speech)
-
-}
-
-function startVoice(){
-
-const recognition=new webkitSpeechRecognition()
-
-recognition.lang="nl-NL"
-
-recognition.start()
-
-recognition.onresult=function(e){
-
-input.value=e.results[0][0].transcript
-
-sendMessage()
-
-}
-
-}
-
-input.addEventListener("keypress",function(e){
-
-if(e.key==="Enter")sendMessage()
-
-})
