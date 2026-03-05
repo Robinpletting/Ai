@@ -10,7 +10,7 @@ method:"POST",
 
 headers:{
 "Content-Type":"application/json",
-"Authorization":"Bearer "+process.env.OPENAI_API_KEY
+"Authorization":"Bearer "+process.env.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
 },
 
 body:JSON.stringify({
